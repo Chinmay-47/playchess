@@ -5,7 +5,9 @@ from playchess.config import DIMENSIONS
 
 
 class Board:
-    """Class to represent a chess board."""
+    """
+    Class to represent a chess board.
+    """
 
     def __init__(self):
         self.board = \
