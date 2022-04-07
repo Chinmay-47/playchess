@@ -8,7 +8,7 @@ from typing import Dict
 
 import pygame
 from playchess.config import SQUARE_SIZE
-from pygame import Surface
+from pygame.surface import Surface
 
 
 CHESS_PIECE_IMAGES: Dict[str, Surface] = {}
