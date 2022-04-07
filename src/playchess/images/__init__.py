@@ -13,7 +13,7 @@ from pygame import Surface
 
 CHESS_PIECE_IMAGES: Dict[str, Surface] = {}
 
-IMAGES_DIR_PATH: str = "src" + os.sep + "playchess" + os.sep + "images"
+IMAGES_DIR_PATH: str = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 for img_file in os.listdir(IMAGES_DIR_PATH):
     if not img_file.endswith(".png"):
