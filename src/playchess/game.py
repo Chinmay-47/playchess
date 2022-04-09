@@ -1,54 +1,92 @@
-from typing import List, Tuple, Union
+from typing import List, Optional
 
 import pygame
 from playchess.board import Board
-from playchess.config import WIDTH, HEIGHT, BACKGROUND_COLOUR, MAX_FPS, SQUARE_SIZE
+from playchess.config import SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR
+from playchess.images import CHESS_PIECE_IMAGES
+from playchess.move import Move
 
 
-def play():
+class Game:
     """
-    Main driver to play the game.
+    Class to represent a chess game.
     """
 
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
-    screen.fill(pygame.Color(BACKGROUND_COLOUR))
-    chess_board = Board()
-    # chess_board.print()
-    move_making_clicks: List[Tuple[int, int]] = []
-    selected_square: Union[Tuple[int, int], None] = None
+    def __init__(self, chess_board: Board):
+        self.chess_board = chess_board
+        self.move_log: List[Move] = []
+        self.captured_pieces: List[str] = []
+        self.white_to_move: bool = True
 
-    while True:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                break
+    def _draw_board_pieces(self, screen: pygame.surface.Surface):
+        """Draws the chess pieces according to the board state."""
 
-            elif e.type == pygame.MOUSEBUTTONDOWN:
+        for row in range(DIMENSIONS):
+            for col in range(DIMENSIONS):
 
-                # (x, y) location of mouse click
-                click_location = pygame.mouse.get_pos()
-                selected_col = click_location[0] // SQUARE_SIZE
-                selected_row = click_location[1] // SQUARE_SIZE
+                # Ignore empty squares
+                if self.chess_board.is_empty_square(row, col):
+                    continue
 
-                # If already selected square is selected, clear move_making_clicks and selected_square
-                if selected_square == (selected_row, selected_col):
-                    selected_square = None
-                    move_making_clicks = []
-                else:
-                    selected_square = (selected_row, selected_col)
-                    move_making_clicks.append(selected_square)  # Append both clicks
+                piece = self.chess_board[row][col]
+                screen.blit(CHESS_PIECE_IMAGES[piece], pygame.Rect(col * SQUARE_SIZE,
+                                                                   row * SQUARE_SIZE,
+                                                                   SQUARE_SIZE, SQUARE_SIZE))
 
-                if len(move_making_clicks) == 2:    # After second click
-                    chess_board.make_move(move_making_clicks[0], move_making_clicks[1])
-                    selected_square = None
-                    move_making_clicks.clear()
-                    # chess_board.print()
+    @staticmethod
+    def _draw_board(screen: pygame.surface.Surface):
+        """Draws the board on a pygame screen."""
 
-        clock.tick(MAX_FPS)
-        pygame.display.flip()
-        chess_board.draw(screen)
+        square_colours = [pygame.Color(LIGHT_SQUARE_COLOUR), pygame.Color(DARK_SQUARE_COLOUR)]
+
+        for row in range(DIMENSIONS):
+            for col in range(DIMENSIONS):
+
+                # Light squares occur when row + column is an even number
+                colour_to_draw = square_colours[((row + col) % 2)]
+                pygame.draw.rect(screen, colour_to_draw, pygame.Rect(col * SQUARE_SIZE,
+                                                                     row * SQUARE_SIZE,
+                                                                     SQUARE_SIZE, SQUARE_SIZE))
+
+    def draw(self, screen: pygame.surface.Surface):
+        """Draws the current state of the chess game on a pygame screen."""
+
+        self._draw_board(screen)
+        self._draw_board_pieces(screen)
+
+    def moves_made(self, last_n: Optional[int] = None) -> List[Move]:
+        """Shows moves made previously"""
+
+        if last_n is not None:
+            return self.move_log[-last_n:]
+
+        return self.move_log
+
+    @property
+    def game_sequence(self) -> str:
+        """Shows the sequence of the game played."""
+        return " -> ".join([move.name for move in self.move_log])
+
+    @property
+    def num_moves_made(self) -> int:
+        """Shows number of moves made."""
+
+        return len(self.move_log)
+
+    def make_move(self, move: Move):
+
+        self.chess_board.clear_square(move.from_row, move.from_col)
+        if move.piece_is_captured:
+            self.captured_pieces.append(move.piece_captured)
+        self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
+        self.move_log.append(move)
+        self.white_to_move = not self.white_to_move
+
+
+def main():
+    g = Game(Board())
+    print(g.game_sequence)
 
 
 if __name__ == '__main__':
-    play()
+    main()
