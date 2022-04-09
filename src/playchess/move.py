@@ -25,7 +25,7 @@ class Move:
         if not self.piece_is_captured:
             return self.piece_moved + self.from_square_name + self.to_square_name
 
-        return self.piece_moved + self.from_square_name + "x" + self.piece_captured + self.to_square_name
+        return self.piece_moved + self.from_square_name + "X" + self.piece_captured + self.to_square_name
 
     @property
     def name(self):
