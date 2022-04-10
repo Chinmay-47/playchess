@@ -87,6 +87,15 @@ class Game:
 
         self.turn = Turn.BLACK if self.turn.is_white() else Turn.WHITE
 
+    def undo_move(self):
+        """Undo a last made move."""
+
+        if len(self.move_log) > 0:
+            move = self.move_log.pop()
+            self.chess_board.update_square(move.from_row, move.from_col, move.piece_moved)
+            self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
+            self.change_turn()
+
 
 def main():
     g = Game(Board())
