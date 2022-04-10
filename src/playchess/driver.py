@@ -49,6 +49,10 @@ def play():
                     move_making_clicks.clear()
                     # chess_board.print()
 
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_u:
+                    game.undo_move()
+
         clock.tick(MAX_FPS)
         pygame.display.flip()
         game.draw(screen)
