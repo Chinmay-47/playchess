@@ -2,6 +2,7 @@ from pprint import pprint
 from typing import List, Dict
 
 from playchess.config import DIMENSIONS
+from playchess.piece import Piece
 
 
 class Board:
@@ -10,7 +11,7 @@ class Board:
     """
 
     def __init__(self):
-        self.board: List[List[str]] = self._get_fresh_board_()
+        self.board: List[List[Piece]] = self._get_fresh_board_()
 
         # Mappings between notation and board matrix positions
         self.ranks_to_rows: Dict[str, int] = {str(i + 1): DIMENSIONS - 1 - i for i in range(DIMENSIONS)}
@@ -21,21 +22,26 @@ class Board:
     def print(self) -> None:
         """Prints the board matrix."""
 
-        pprint(self.board)
+        for row in self.board:
+            pprint([piece.value for piece in row])
 
     @staticmethod
-    def _get_fresh_board_() -> List[List[str]]:
+    def _get_fresh_board_() -> List[List[Piece]]:
         """Gets a fresh board to start a chess game."""
 
         return \
-            [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-             ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
-             ["--", "--", "--", "--", "--", "--", "--", "--"],
-             ["--", "--", "--", "--", "--", "--", "--", "--"],
-             ["--", "--", "--", "--", "--", "--", "--", "--"],
-             ["--", "--", "--", "--", "--", "--", "--", "--"],
-             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
-             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+            [[Piece.BLACK_ROOK, Piece.BLACK_KNIGHT, Piece.BLACK_BISHOP, Piece.BLACK_QUEEN,
+              Piece.BLACK_KING, Piece.BLACK_BISHOP, Piece.BLACK_KNIGHT, Piece.BLACK_ROOK],
+             [Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN,
+              Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN],
+             [Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE],
+             [Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE],
+             [Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE],
+             [Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE, Piece.NONE],
+             [Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN,
+              Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN],
+             [Piece.WHITE_ROOK, Piece.WHITE_KNIGHT, Piece.WHITE_BISHOP, Piece.WHITE_QUEEN,
+              Piece.WHITE_KING, Piece.WHITE_BISHOP, Piece.WHITE_KNIGHT, Piece.WHITE_ROOK]]
 
     def get_square_name(self, row: int, col: int) -> str:
         """Gets square name in chess notation for a given row and column."""
@@ -47,14 +53,14 @@ class Board:
     def is_empty_square(self, row: int, col: int) -> bool:
         """Checks if a given square is empty."""
 
-        return self.board[row][col] == "--"
+        return self.board[row][col] == Piece.NONE
 
     def clear_square(self, row: int, col: int) -> None:
         """Empties a square."""
 
-        self.board[row][col] = "--"
+        self.board[row][col] = Piece.NONE
 
-    def update_square(self, row: int, col: int, piece: str) -> None:
+    def update_square(self, row: int, col: int, piece: Piece) -> None:
         """Updates a square to a given piece."""
 
         self.board[row][col] = piece
