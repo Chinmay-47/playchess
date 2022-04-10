@@ -5,6 +5,7 @@ from playchess.board import Board
 from playchess.config import SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR
 from playchess.images import CHESS_PIECE_IMAGES
 from playchess.move import Move
+from playchess.turn import Turn
 
 
 class Game:
@@ -15,8 +16,7 @@ class Game:
     def __init__(self, chess_board: Board):
         self.chess_board = chess_board
         self.move_log: List[Move] = []
-        self.captured_pieces: List[str] = []
-        self.white_to_move: bool = True
+        self.turn: Turn = Turn.WHITE
 
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
@@ -29,9 +29,9 @@ class Game:
                     continue
 
                 piece = self.chess_board[row][col]
-                screen.blit(CHESS_PIECE_IMAGES[piece], pygame.Rect(col * SQUARE_SIZE,
-                                                                   row * SQUARE_SIZE,
-                                                                   SQUARE_SIZE, SQUARE_SIZE))
+                screen.blit(CHESS_PIECE_IMAGES[piece.value], pygame.Rect(col * SQUARE_SIZE,
+                                                                         row * SQUARE_SIZE,
+                                                                         SQUARE_SIZE, SQUARE_SIZE))
 
     @staticmethod
     def _draw_board(screen: pygame.surface.Surface):
@@ -74,13 +74,18 @@ class Game:
         return len(self.move_log)
 
     def make_move(self, move: Move):
+        """Makes a chess move."""
 
+        # Does not work for castling, en-passant and pawn promotion
         self.chess_board.clear_square(move.from_row, move.from_col)
-        if move.piece_is_captured:
-            self.captured_pieces.append(move.piece_captured)
         self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
         self.move_log.append(move)
-        self.white_to_move = not self.white_to_move
+        self.change_turn()
+
+    def change_turn(self):
+        """Changes the turns of the game."""
+
+        self.turn = Turn.BLACK if self.turn.is_white() else Turn.WHITE
 
 
 def main():
