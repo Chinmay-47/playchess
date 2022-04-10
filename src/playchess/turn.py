@@ -6,3 +6,6 @@ class Turn(Enum):
 
     WHITE = auto()
     BLACK = auto()
+
+    def is_white(self):
+        return self.name == "WHITE"
