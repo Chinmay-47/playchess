@@ -24,5 +24,23 @@ class Piece(Enum):
     def is_white(self):
         return "WHITE_" in self.name
 
+    def is_rook(self):
+        return "ROOK" in self.name
+
+    def is_knight(self):
+        return "KNIGHT" in self.name
+
+    def is_bishop(self):
+        return "BISHOP" in self.name
+
+    def is_queen(self):
+        return "QUEEN" in self.name
+
+    def is_king(self):
+        return "KING" in self.name
+
+    def is_pawn(self):
+        return "PAWN" in self.name
+
     def __bool__(self):
         return self.value is not None
