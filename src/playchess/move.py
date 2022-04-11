@@ -31,6 +31,11 @@ class Move:
     def name(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        if isinstance(self, other):
+            return self.name == other.name
+        return False
+
 
 def main():
     m = Move((6, 3), (4, 3), Board())
