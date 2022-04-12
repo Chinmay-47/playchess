@@ -5,6 +5,7 @@ from playchess.board import Board
 from playchess.config import SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR
 from playchess.images import CHESS_PIECE_IMAGES
 from playchess.move import Move
+from playchess.piece import Piece
 from playchess.turn import Turn
 
 
@@ -95,6 +96,92 @@ class Game:
             self.chess_board.update_square(move.from_row, move.from_col, move.piece_moved)
             self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
             self.change_turn()
+
+    def get_valid_moves(self) -> List[Move]:
+        return self._get_all_possible_moves()   # Not considering checks for now
+
+    def _get_all_possible_moves(self) -> List[Move]:
+        """Generate all currently possible moves without considering checks."""
+
+        possible_moves: List[Move] = []
+        for row_no, row in enumerate(self.chess_board):
+            for col_no, piece in enumerate(self.chess_board[row_no]):
+
+                # This condition also ensures that empty squares cannot be moved
+                white_moving_white = piece.is_white() and self.turn.is_white()
+                black_moving_black = piece.is_black() and not self.turn.is_white()
+                if not (white_moving_white or black_moving_black):
+                    continue
+
+                possible_moves.extend(self._get_all_piece_moves(row_no, col_no, piece))
+
+        return possible_moves
+
+    def _get_all_pawn_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a pawn on a given row and column."""
+
+        moves: List[Move] = []
+
+        # White Advances
+        if self.turn.is_white() and self.chess_board.is_empty_square(row-1, col):  # 1 square advance
+            moves.append(Move((row, col), (row-1, col), self.chess_board))
+            if self.chess_board.is_empty_square(row-2, col):  # 2 square advance
+                moves.append(Move((row, col), (row-2, col), self.chess_board))
+
+        # White Captures Left
+        if self.turn.is_white() and col-1 >= 0 and self.chess_board[row-1][col-1].is_black():
+            moves.append(Move((row, col), (row-1, col-1), self.chess_board))
+
+        # White Captures Right
+        if self.turn.is_white() and col+1 <= 7 and self.chess_board[row-1][col+1].is_black():
+            moves.append(Move((row, col), (row-1, col+1), self.chess_board))
+
+        # Black Advances
+        if not self.turn.is_white() and self.chess_board.is_empty_square(row+1, col):  # 1 square advance
+            moves.append(Move((row, col), (row+1, col), self.chess_board))
+            if self.chess_board.is_empty_square(row+2, col):  # 2 square advance
+                moves.append(Move((row, col), (row+2, col), self.chess_board))
+
+        # Black Captures Left
+        if not self.turn.is_white() and col+1 <= 7 and self.chess_board[row+1][col+1].is_white():
+            moves.append(Move((row, col), (row+1, col+1), self.chess_board))
+
+        # Black Captures Right
+        if not self.turn.is_white() and col-1 >= 0 and self.chess_board[row+1][col-1].is_white():
+            moves.append(Move((row, col), (row+1, col-1), self.chess_board))
+
+        return moves
+
+    def _get_all_rook_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a rook on a given row and column."""
+
+    def _get_all_knight_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a knight on a given row and column."""
+
+    def _get_all_bishop_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a bishop on a given row and column."""
+
+    def _get_all_queen_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a queen on a given row and column."""
+
+    def _get_all_king_moves(self, row: int, col: int) -> List[Move]:
+        """Get all possible moves for a king on a given row and column."""
+
+    def _get_all_piece_moves(self, row: int, col: int, piece: Piece):
+        """Get all possible moves for a given piece on a row and col"""
+
+        if piece.is_pawn():
+            return self._get_all_pawn_moves(row, col)
+        if piece.is_rook():
+            return self._get_all_rook_moves(row, col)
+        if piece.is_knight():
+            return self._get_all_knight_moves(row, col)
+        if piece.is_bishop():
+            return self._get_all_bishop_moves(row, col)
+        if piece.is_queen():
+            return self._get_all_queen_moves(row, col)
+        if piece.is_king():
+            return self._get_all_king_moves(row, col)
 
 
 def main():
