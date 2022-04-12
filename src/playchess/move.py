@@ -32,9 +32,7 @@ class Move:
         return self.__str__()
 
     def __eq__(self, other):
-        if isinstance(self, other):
-            return self.name == other.name
-        return False
+        return self.name == other.name
 
 
 def main():
