@@ -65,6 +65,10 @@ class Board:
 
         self.board[row][col] = piece
 
+    def __iter__(self):
+        for row in self.board:
+            yield row
+
 
 def main():
     b = Board()
