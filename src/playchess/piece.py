@@ -24,6 +24,9 @@ class Piece(Enum):
     def is_white(self):
         return "WHITE_" in self.name
 
+    def is_black(self):
+        return "BLACK_" in self.name
+
     def is_rook(self):
         return "ROOK" in self.name
 
