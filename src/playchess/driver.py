@@ -22,6 +22,10 @@ def play():
     move_making_clicks: List[Tuple[int, int]] = []
     selected_square: Union[Tuple[int, int], None] = None
 
+    valid_moves = game.get_valid_moves()
+    # [print(item) for item in valid_moves]
+    board_state_changed: bool = False
+
     while True:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -44,7 +48,11 @@ def play():
 
                 if len(move_making_clicks) == 2:    # After second click
                     move = Move(move_making_clicks[0], move_making_clicks[1], chess_board)
-                    game.make_move(move)
+                    # print("Move: {}".format(move))
+
+                    if move in valid_moves:
+                        game.make_move(move)
+                        board_state_changed = True
                     selected_square = None
                     move_making_clicks.clear()
                     # chess_board.print()
@@ -52,6 +60,11 @@ def play():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_u:
                     game.undo_move()
+                    board_state_changed = True
+
+        if board_state_changed:
+            valid_moves = game.get_valid_moves()
+            board_state_changed = False
 
         clock.tick(MAX_FPS)
         pygame.display.flip()
