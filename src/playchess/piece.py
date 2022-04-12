@@ -19,7 +19,7 @@ class Piece(Enum):
     BLACK_KING = "bK"
     BLACK_PAWN = "bp"
 
-    NONE = None
+    NONE = "None"
 
     def is_white(self):
         return "WHITE_" in self.name
@@ -46,4 +46,4 @@ class Piece(Enum):
         return "PAWN" in self.name
 
     def __bool__(self):
-        return self.value is not None
+        return self.value != "None"
