@@ -42,7 +42,6 @@ class Game:
 
         for row in range(DIMENSIONS):
             for col in range(DIMENSIONS):
-
                 # Light squares occur when row + column is an even number
                 colour_to_draw = square_colours[((row + col) % 2)]
                 pygame.draw.rect(screen, colour_to_draw, pygame.Rect(col * SQUARE_SIZE,
@@ -77,7 +76,7 @@ class Game:
     def make_move(self, move: Move):
         """Makes a chess move."""
 
-        # Does not work for castling, en-passant and pawn promotion
+        # TODO Implement castling, en-passant and pawn promotion
         self.chess_board.clear_square(move.from_row, move.from_col)
         self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
         self.move_log.append(move)
@@ -98,7 +97,7 @@ class Game:
             self.change_turn()
 
     def get_valid_moves(self) -> List[Move]:
-        return self._get_all_possible_moves()   # Not considering checks for now
+        return self._get_all_possible_moves()  # Not considering checks for now
 
     def _get_all_possible_moves(self) -> List[Move]:
         """Generate all currently possible moves without considering checks."""
@@ -123,32 +122,34 @@ class Game:
         moves: List[Move] = []
 
         # White Advances
-        if self.turn.is_white() and self.chess_board.is_empty_square(row-1, col):  # 1 square advance
-            moves.append(Move((row, col), (row-1, col), self.chess_board))
-            if row == 6 and self.chess_board.is_empty_square(row-2, col):  # 2 square advance
-                moves.append(Move((row, col), (row-2, col), self.chess_board))
+        if self.turn.is_white() and self.chess_board.is_empty_square(row - 1, col):  # 1 square advance
+            moves.append(Move((row, col), (row - 1, col), self.chess_board))
+            if row == 6 and self.chess_board.is_empty_square(row - 2, col):  # 2 square advance
+                moves.append(Move((row, col), (row - 2, col), self.chess_board))
 
         # White Captures Left
-        if self.turn.is_white() and col-1 >= 0 and self.chess_board[row-1][col-1].is_black():
-            moves.append(Move((row, col), (row-1, col-1), self.chess_board))
+        if self.turn.is_white() and col - 1 >= 0 and self.chess_board[row - 1][col - 1].is_black():
+            moves.append(Move((row, col), (row - 1, col - 1), self.chess_board))
 
         # White Captures Right
-        if self.turn.is_white() and col+1 <= 7 and self.chess_board[row-1][col+1].is_black():
-            moves.append(Move((row, col), (row-1, col+1), self.chess_board))
+        if self.turn.is_white() and col + 1 <= 7 and self.chess_board[row - 1][col + 1].is_black():
+            moves.append(Move((row, col), (row - 1, col + 1), self.chess_board))
 
         # Black Advances
-        if not self.turn.is_white() and self.chess_board.is_empty_square(row+1, col):  # 1 square advance
-            moves.append(Move((row, col), (row+1, col), self.chess_board))
-            if row == 1 and self.chess_board.is_empty_square(row+2, col):  # 2 square advance
-                moves.append(Move((row, col), (row+2, col), self.chess_board))
+        if not self.turn.is_white() and self.chess_board.is_empty_square(row + 1, col):  # 1 square advance
+            moves.append(Move((row, col), (row + 1, col), self.chess_board))
+            if row == 1 and self.chess_board.is_empty_square(row + 2, col):  # 2 square advance
+                moves.append(Move((row, col), (row + 2, col), self.chess_board))
 
         # Black Captures Left
-        if not self.turn.is_white() and col+1 <= 7 and self.chess_board[row+1][col+1].is_white():
-            moves.append(Move((row, col), (row+1, col+1), self.chess_board))
+        if not self.turn.is_white() and col + 1 <= 7 and self.chess_board[row + 1][col + 1].is_white():
+            moves.append(Move((row, col), (row + 1, col + 1), self.chess_board))
 
         # Black Captures Right
-        if not self.turn.is_white() and col-1 >= 0 and self.chess_board[row+1][col-1].is_white():
-            moves.append(Move((row, col), (row+1, col-1), self.chess_board))
+        if not self.turn.is_white() and col - 1 >= 0 and self.chess_board[row + 1][col - 1].is_white():
+            moves.append(Move((row, col), (row + 1, col - 1), self.chess_board))
+
+        # TODO Add pawn promotions
 
         return moves
 
