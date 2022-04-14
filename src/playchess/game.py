@@ -125,7 +125,7 @@ class Game:
         # White Advances
         if self.turn.is_white() and self.chess_board.is_empty_square(row-1, col):  # 1 square advance
             moves.append(Move((row, col), (row-1, col), self.chess_board))
-            if self.chess_board.is_empty_square(row-2, col):  # 2 square advance
+            if row == 6 and self.chess_board.is_empty_square(row-2, col):  # 2 square advance
                 moves.append(Move((row, col), (row-2, col), self.chess_board))
 
         # White Captures Left
@@ -139,7 +139,7 @@ class Game:
         # Black Advances
         if not self.turn.is_white() and self.chess_board.is_empty_square(row+1, col):  # 1 square advance
             moves.append(Move((row, col), (row+1, col), self.chess_board))
-            if self.chess_board.is_empty_square(row+2, col):  # 2 square advance
+            if row == 1 and self.chess_board.is_empty_square(row+2, col):  # 2 square advance
                 moves.append(Move((row, col), (row+2, col), self.chess_board))
 
         # Black Captures Left
@@ -154,18 +154,23 @@ class Game:
 
     def _get_all_rook_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a rook on a given row and column."""
+        return []
 
     def _get_all_knight_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a knight on a given row and column."""
+        return []
 
     def _get_all_bishop_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a bishop on a given row and column."""
+        return []
 
     def _get_all_queen_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a queen on a given row and column."""
+        return []
 
     def _get_all_king_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a king on a given row and column."""
+        return []
 
     def _get_all_piece_moves(self, row: int, col: int, piece: Piece):
         """Get all possible moves for a given piece on a row and col"""
