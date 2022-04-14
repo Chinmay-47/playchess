@@ -155,23 +155,131 @@ class Game:
 
     def _get_all_rook_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a rook on a given row and column."""
-        return []
+
+        moves: List[Move] = []
+
+        directions = [(-1, 0), (0, -1), (1, 0), (0, 1)]  # Up, Left, Down, Right
+
+        # Check 7 squares in 4 directions for valid rook moves
+        for direction in directions:
+            for i in range(1, 8):
+
+                to_row = row + direction[0] * i
+                to_col = col + direction[1] * i
+
+                if not 0 <= to_row < 8 or not 0 <= to_col < 8:  # Out of board (stop searching)
+                    break
+
+                if self.chess_board.is_empty_square(to_row, to_col):    # Empty square is valid move (keep searching)
+                    moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+                    continue
+
+                valid_black_enemy = self.turn.is_white() and self.chess_board[to_row][to_col].is_black()
+                valid_white_enemy = not self.turn.is_white() and self.chess_board[to_row][to_col].is_white()
+
+                if not (valid_black_enemy or valid_white_enemy):  # Friendly piece invalid (stop searching)
+                    break
+
+                # Capturing opposite colour is valid (stop searching)
+                moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+                break
+
+        return moves
 
     def _get_all_knight_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a knight on a given row and column."""
-        return []
+
+        moves: List[Move] = []
+
+        # Knight can move to 8 squares from a given square
+        knight_moves = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
+
+        for move in knight_moves:
+
+            to_row = row + move[0]
+            to_col = col + move[1]
+
+            if not 0 <= to_row < 8 or not 0 <= to_col < 8:  # Out of board (skip to next)
+                continue
+
+            friendly_white = self.turn.is_white() and self.chess_board[to_row][to_col].is_white()
+            friendly_black = not self.turn.is_white() and self.chess_board[to_row][to_col].is_black()
+
+            # This condition also ensures that knight can move to empty squares
+            if friendly_black or friendly_white:
+                continue
+
+            moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+
+        return moves
 
     def _get_all_bishop_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a bishop on a given row and column."""
-        return []
+
+        moves: List[Move] = []
+
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Diagonals
+
+        # Check 7 squares in 4 directions for valid bishop moves
+        for direction in directions:
+            for i in range(1, 8):
+
+                to_row = row + direction[0] * i
+                to_col = col + direction[1] * i
+
+                if not 0 <= to_row < 8 or not 0 <= to_col < 8:  # Out of board (stop searching)
+                    break
+
+                if self.chess_board.is_empty_square(to_row, to_col):  # Empty square is valid move (keep searching)
+                    moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+                    continue
+
+                valid_black_enemy = self.turn.is_white() and self.chess_board[to_row][to_col].is_black()
+                valid_white_enemy = not self.turn.is_white() and self.chess_board[to_row][to_col].is_white()
+
+                if not (valid_black_enemy or valid_white_enemy):  # Friendly piece invalid (stop searching)
+                    break
+
+                # Capturing opposite colour is valid (stop searching)
+                moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+                break
+
+        return moves
 
     def _get_all_queen_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a queen on a given row and column."""
-        return []
+
+        queen_diagonal_moves = self._get_all_bishop_moves(row, col)
+        queen_straight_moves = self._get_all_rook_moves(row, col)
+
+        return queen_diagonal_moves + queen_straight_moves
 
     def _get_all_king_moves(self, row: int, col: int) -> List[Move]:
         """Get all possible moves for a king on a given row and column."""
-        return []
+
+        moves: List[Move] = []
+
+        # King can move to 8 squares from a given square
+        king_moves = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+        for move in king_moves:
+
+            to_row = row + move[0]
+            to_col = col + move[1]
+
+            if not 0 <= to_row < 8 or not 0 <= to_col < 8:  # Out of board (skip to next)
+                continue
+
+            friendly_white = self.turn.is_white() and self.chess_board[to_row][to_col].is_white()
+            friendly_black = not self.turn.is_white() and self.chess_board[to_row][to_col].is_black()
+
+            # This condition also ensures that king can move to empty squares
+            if friendly_black or friendly_white:
+                continue
+
+            moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+
+        return moves
 
     def _get_all_piece_moves(self, row: int, col: int, piece: Piece):
         """Get all possible moves for a given piece on a row and col"""
