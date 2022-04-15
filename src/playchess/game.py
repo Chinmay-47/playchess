@@ -18,6 +18,8 @@ class Game:
         self.chess_board = chess_board
         self.move_log: List[Move] = []
         self.turn: Turn = Turn.WHITE
+        self.check_mate: bool = False
+        self.stale_mate: bool = False
 
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
@@ -126,6 +128,15 @@ class Game:
 
             self.change_turn()
             self.undo_move()
+
+        if not valid_moves and self.is_king_checked():
+            self.check_mate = True
+        elif not valid_moves and not self.is_king_checked():
+            self.stale_mate = True
+        else:
+            # We need to do this if the check mate move is then undone
+            self.check_mate = False
+            self.stale_mate = False
 
         return valid_moves
 
