@@ -72,7 +72,11 @@ class Board:
             yield row
 
     def reset(self):
-        self.__init__()
+        """Resets the board"""
+
+        self.board = self._get_fresh_board_()
+        self.white_king_location = (7, 4)
+        self.black_king_location = (0, 4)
 
 
 def main():
