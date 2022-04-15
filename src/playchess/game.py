@@ -82,6 +82,12 @@ class Game:
         self.move_log.append(move)
         self.change_turn()
 
+        # Keep track of the king
+        if move.piece_moved.is_white() and move.piece_moved.is_king():
+            self.chess_board.white_king_location = (move.to_row, move.to_col)
+        elif move.piece_moved.is_black() and move.piece_moved.is_king():
+            self.chess_board.black_king_location = (move.to_row, move.to_col)
+
     def change_turn(self):
         """Changes the turns of the game."""
 
@@ -96,8 +102,61 @@ class Game:
             self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
             self.change_turn()
 
+            # Keep track of the king
+            if move.piece_moved.is_white() and move.piece_moved.is_king():
+                self.chess_board.white_king_location = (move.from_row, move.from_col)
+            elif move.piece_moved.is_black() and move.piece_moved.is_king():
+                self.chess_board.black_king_location = (move.from_row, move.from_col)
+
     def get_valid_moves(self) -> List[Move]:
-        return self._get_all_possible_moves()  # Not considering checks for now
+        """Generates all the valid moves in a position."""
+
+        valid_moves: List[Move] = []
+
+        all_possible_moves = self._get_all_possible_moves()
+
+        # We check the validity of move by actually making the move.
+        for move in all_possible_moves:
+            self.make_move(move)
+
+            # Make move function swaps turns, so we swap it back to see if making a move leaves the king checked
+            self.change_turn()
+            if not self.is_king_checked():
+                valid_moves.append(move)
+
+            self.change_turn()
+            self.undo_move()
+
+        return valid_moves
+
+    def is_king_checked(self):
+        """Checks if the king of current player is under check."""
+
+        return (self.turn.is_white() and self._is_white_king_checked()) or \
+               (not self.turn.is_white() and self._is_black_king_checked())
+
+    def _is_white_king_checked(self):
+        """Checks if the white king is under check."""
+
+        return self.is_square_attacked(self.chess_board.white_king_location[0], self.chess_board.white_king_location[1])
+
+    def _is_black_king_checked(self):
+        """Checks if the black king is under check."""
+
+        return self.is_square_attacked(self.chess_board.black_king_location[0], self.chess_board.black_king_location[1])
+
+    def is_square_attacked(self, row: int, col: int) -> bool:
+        """Checks if a given square is under attack by opponents moves in the next turn."""
+
+        self.change_turn()
+        opponent_moves = self._get_all_possible_moves()
+        self.change_turn()
+
+        for move in opponent_moves:
+            if move.to_row == row and move.to_col == col:
+                return True
+
+        return False
 
     def _get_all_possible_moves(self) -> List[Move]:
         """Generate all currently possible moves without considering checks."""
