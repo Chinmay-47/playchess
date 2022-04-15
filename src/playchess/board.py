@@ -1,5 +1,5 @@
 from pprint import pprint
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from playchess.config import DIMENSIONS
 from playchess.piece import Piece
@@ -18,6 +18,8 @@ class Board:
         self.rows_to_ranks: Dict[int, str] = {val: key for key, val in self.ranks_to_rows.items()}
         self.files_to_cols: Dict[str, int] = {elem: idx for idx, elem in enumerate(list("abcdefgh"))}
         self.cols_to_files: Dict[int, str] = {val: key for key, val in self.files_to_cols.items()}
+        self.white_king_location: Tuple[int, int] = (7, 4)
+        self.black_king_location: Tuple[int, int] = (0, 4)
 
     def print(self) -> None:
         """Prints the board matrix."""
@@ -68,6 +70,9 @@ class Board:
     def __iter__(self):
         for row in self.board:
             yield row
+
+    def reset(self):
+        self.__init__()
 
 
 def main():
