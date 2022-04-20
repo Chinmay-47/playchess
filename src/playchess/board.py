@@ -79,10 +79,10 @@ class Board:
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
 
-    def copy(self):
+    def deep_copy(self):
         """Returns a deep copy of the board."""
 
-        return copy.deepcopy(self.board)
+        return copy.deepcopy(self)
 
 
 def main():
