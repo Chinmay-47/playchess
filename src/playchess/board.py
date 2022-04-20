@@ -1,3 +1,4 @@
+import copy
 from pprint import pprint
 from typing import List, Dict, Tuple
 
@@ -72,11 +73,16 @@ class Board:
             yield row
 
     def reset(self):
-        """Resets the board"""
+        """Resets the board."""
 
         self.board = self._get_fresh_board_()
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
+
+    def copy(self):
+        """Returns a deep copy of the board."""
+
+        return copy.deepcopy(self.board)
 
 
 def main():
