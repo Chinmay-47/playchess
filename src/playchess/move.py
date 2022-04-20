@@ -9,7 +9,7 @@ class Move:
     def __init__(self, from_square: Tuple[int, int], to_square: Tuple[int, int], board: Board):
         self.from_square = from_square
         self.to_square = to_square
-        self.chess_board = board
+        self.chess_board = board.deep_copy()
         self.from_row, self.from_col = self.from_square
         self.to_row, self.to_col = self.to_square
         self.from_square_name = self.chess_board.get_square_name(self.from_row, self.from_col)
