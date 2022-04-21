@@ -78,9 +78,16 @@ class Game:
     def make_move(self, move: Move):
         """Makes a chess move."""
 
-        # TODO Implement castling, en-passant and pawn promotion
+        # TODO Implement castling, en-passant
         self.chess_board.clear_square(move.from_row, move.from_col)
         self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
+
+        # pawn promotion
+        if move.is_white_pawn_promotion:
+            self.chess_board.update_square(move.to_row, move.to_col, Piece.WHITE_QUEEN)
+        elif move.is_black_pawn_promotion:
+            self.chess_board.update_square(move.to_row, move.to_col, Piece.BLACK_QUEEN)
+
         self.move_log.append(move)
         self.change_turn()
 
@@ -218,8 +225,6 @@ class Game:
         # Black Captures Right
         if not self.turn.is_white() and col - 1 >= 0 and self.chess_board[row + 1][col - 1].is_white():
             moves.append(Move((row, col), (row + 1, col - 1), self.chess_board))
-
-        # TODO Add pawn promotions
 
         return moves
 
