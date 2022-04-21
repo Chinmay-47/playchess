@@ -18,9 +18,9 @@ class Move:
         self.piece_moved = self.chess_board[self.from_row][self.from_col]
         self.piece_captured = self.chess_board[self.to_row][self.to_col]
 
-        _white_pawn_promotion = self.piece_moved.is_white() and self.piece_moved.is_pawn() and self.to_row == 0
-        _black_pawn_promotion = self.piece_moved.is_black() and self.piece_moved.is_pawn() and self.to_row == 7
-        self.is_pawn_promotion = _white_pawn_promotion or _black_pawn_promotion
+        self.is_white_pawn_promotion = self.piece_moved.is_white() and self.piece_moved.is_pawn() and self.to_row == 0
+        self.is_black_pawn_promotion = self.piece_moved.is_black() and self.piece_moved.is_pawn() and self.to_row == 7
+        self.is_pawn_promotion = self.is_white_pawn_promotion or self.is_black_pawn_promotion
 
         self.piece_is_captured = True
         if self.chess_board.is_empty_square(self.to_row, self.to_col):
