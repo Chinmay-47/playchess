@@ -2,7 +2,6 @@ import copy
 from pprint import pprint
 from typing import List, Dict, Tuple
 
-from playchess.config import DIMENSIONS
 from playchess.piece import Piece
 
 
@@ -15,8 +14,9 @@ class Board:
         self.board: List[List[Piece]] = self._get_fresh_board_()
 
         # Mappings between notation and board matrix positions
-        self.ranks_to_rows: Dict[str, int] = {str(i + 1): DIMENSIONS - 1 - i for i in range(DIMENSIONS)}
+        self.ranks_to_rows: Dict[str, int] = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
         self.rows_to_ranks: Dict[int, str] = {val: key for key, val in self.ranks_to_rows.items()}
+        print(self.rows_to_ranks)
         self.files_to_cols: Dict[str, int] = {elem: idx for idx, elem in enumerate(list("abcdefgh"))}
         self.cols_to_files: Dict[int, str] = {val: key for key, val in self.files_to_cols.items()}
         self.white_king_location: Tuple[int, int] = (7, 4)
