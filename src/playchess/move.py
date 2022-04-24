@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from playchess.board import Board
 
@@ -6,7 +6,8 @@ from playchess.board import Board
 class Move:
     """Class to represent a chess move."""
 
-    def __init__(self, from_square: Tuple[int, int], to_square: Tuple[int, int], board: Board):
+    def __init__(self, from_square: Tuple[int, int], to_square: Tuple[int, int], board: Board, *,
+                 en_passant_move: bool = False, en_passant_square: Optional[Tuple[int, int]] = None):
 
         self.from_square = from_square
         self.to_square = to_square
@@ -18,9 +19,13 @@ class Move:
         self.piece_moved = self.chess_board[self.from_row][self.from_col]
         self.piece_captured = self.chess_board[self.to_row][self.to_col]
 
+        # Pawn promotion
         self.is_white_pawn_promotion = self.piece_moved.is_white() and self.piece_moved.is_pawn() and self.to_row == 0
         self.is_black_pawn_promotion = self.piece_moved.is_black() and self.piece_moved.is_pawn() and self.to_row == 7
         self.is_pawn_promotion = self.is_white_pawn_promotion or self.is_black_pawn_promotion
+
+        # En-passant
+        self.is_en_passant = en_passant_move and self.piece_moved.is_pawn() and (self.to_square == en_passant_square)
 
         self.piece_is_captured = True
         if self.chess_board.is_empty_square(self.to_row, self.to_col):
