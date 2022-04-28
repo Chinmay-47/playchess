@@ -26,6 +26,8 @@ class Move:
 
         # En-passant
         self.is_en_passant = is_en_passant
+        if self.is_en_passant:
+            self.piece_captured = self.chess_board[self.from_row][self.to_col]
 
         self.piece_is_captured = True
         if self.chess_board.is_empty_square(self.to_row, self.to_col):
