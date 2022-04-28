@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pygame
 from playchess.board import Board
@@ -20,6 +20,8 @@ class Game:
         self.turn: Turn = Turn.WHITE
         self.check_mate: bool = False
         self.stale_mate: bool = False
+        self.en_passant_available: bool = True
+        self.en_passant_to_square: Optional[Tuple[int, int]] = None
 
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
@@ -78,7 +80,7 @@ class Game:
     def make_move(self, move: Move):
         """Makes a chess move."""
 
-        # TODO Implement castling, en-passant
+        # TODO Implement castling
         self.chess_board.clear_square(move.from_row, move.from_col)
         self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
 
@@ -87,6 +89,16 @@ class Game:
             self.chess_board.update_square(move.to_row, move.to_col, Piece.WHITE_QUEEN)
         elif move.is_black_pawn_promotion:
             self.chess_board.update_square(move.to_row, move.to_col, Piece.BLACK_QUEEN)
+
+        # En-passant
+        if move.is_en_passant:
+            self.chess_board.clear_square(move.from_row, move.to_col)
+            self.en_passant_available = False
+            self.en_passant_to_square = None
+
+        # Update en-passant square
+        if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
+            self.en_passant_to_square = ((move.from_row + move.to_row)//2, move.from_col)
 
         self.move_log.append(move)
         self.change_turn()
@@ -108,7 +120,15 @@ class Game:
         if len(self.move_log) > 0:
             move = self.move_log.pop()
             self.chess_board.update_square(move.from_row, move.from_col, move.piece_moved)
-            self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
+
+            if move.is_en_passant:
+                self.chess_board.clear_square(move.to_row, move.to_col)
+                self.chess_board.update_square(move.from_row, move.to_col, move.piece_captured)
+                self.en_passant_available = True
+                self.en_passant_to_square = move.to_square
+            else:
+                self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
+
             self.change_turn()
 
             # Keep track of the king
@@ -123,6 +143,9 @@ class Game:
         valid_moves: List[Move] = []
 
         all_possible_moves = self._get_all_possible_moves()
+
+        # We need to keep track of this and reset it, as this value changes while generating valid moves
+        temp_en_passant_to_square = self.en_passant_to_square
 
         # We check the validity of move by actually making the move.
         for move in all_possible_moves:
@@ -144,6 +167,8 @@ class Game:
             # We need to do this if the check mate move is then undone
             self.check_mate = False
             self.stale_mate = False
+
+        self.en_passant_to_square = temp_en_passant_to_square
 
         return valid_moves
 
@@ -208,9 +233,19 @@ class Game:
         if self.turn.is_white() and col - 1 >= 0 and self.chess_board[row - 1][col - 1].is_black():
             moves.append(Move((row, col), (row - 1, col - 1), self.chess_board))
 
+        # White Captures Left (En-passant)
+        if self.turn.is_white() and col - 1 >= 0 and self.chess_board.is_empty_square(row - 1, col - 1) and \
+                (row - 1, col - 1) == self.en_passant_to_square and self.en_passant_available:
+            moves.append(Move((row, col), (row - 1, col - 1), self.chess_board, is_en_passant=True))
+
         # White Captures Right
         if self.turn.is_white() and col + 1 <= 7 and self.chess_board[row - 1][col + 1].is_black():
             moves.append(Move((row, col), (row - 1, col + 1), self.chess_board))
+
+        # White Captures Right (En-passant)
+        if self.turn.is_white() and col + 1 <= 7 and self.chess_board.is_empty_square(row - 1, col + 1) and \
+                (row - 1, col + 1) == self.en_passant_to_square and self.en_passant_available:
+            moves.append(Move((row, col), (row - 1, col + 1), self.chess_board, is_en_passant=True))
 
         # Black Advances
         if not self.turn.is_white() and self.chess_board.is_empty_square(row + 1, col):  # 1 square advance
@@ -222,9 +257,19 @@ class Game:
         if not self.turn.is_white() and col + 1 <= 7 and self.chess_board[row + 1][col + 1].is_white():
             moves.append(Move((row, col), (row + 1, col + 1), self.chess_board))
 
+        # Black Captures Left (En-passant)
+        if not self.turn.is_white() and col + 1 <= 7 and self.chess_board.is_empty_square(row + 1, col + 1) and \
+                (row + 1, col + 1) == self.en_passant_to_square and self.en_passant_available:
+            moves.append(Move((row, col), (row + 1, col + 1), self.chess_board, is_en_passant=True))
+
         # Black Captures Right
         if not self.turn.is_white() and col - 1 >= 0 and self.chess_board[row + 1][col - 1].is_white():
             moves.append(Move((row, col), (row + 1, col - 1), self.chess_board))
+
+        # Black Captures Right (En-passant)
+        if not self.turn.is_white() and col - 1 >= 0 and self.chess_board.is_empty_square(row + 1, col - 1) and \
+                (row + 1, col - 1) == self.en_passant_to_square and self.en_passant_available:
+            moves.append(Move((row, col), (row + 1, col - 1), self.chess_board, is_en_passant=True))
 
         return moves
 
