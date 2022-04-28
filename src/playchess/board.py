@@ -56,7 +56,7 @@ class Board:
     def is_empty_square(self, row: int, col: int) -> bool:
         """Checks if a given square is empty."""
 
-        return self.board[row][col] == Piece.NONE
+        return self.board[row][col].is_none()
 
     def clear_square(self, row: int, col: int) -> None:
         """Empties a square."""
