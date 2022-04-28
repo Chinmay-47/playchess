@@ -45,5 +45,8 @@ class Piece(Enum):
     def is_pawn(self):
         return "PAWN" in self.name
 
+    def is_none(self):
+        return self.value == "None"
+
     def __bool__(self):
         return self.value != "None"
