@@ -137,6 +137,10 @@ class Game:
             elif move.piece_moved.is_black() and move.piece_moved.is_king():
                 self.chess_board.black_king_location = (move.from_row, move.from_col)
 
+            # Update en-passant square if 2 square pawn advance is undone
+            if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
+                self.en_passant_to_square = None
+
     def get_valid_moves(self) -> List[Move]:
         """Generates all the valid moves in a position."""
 
