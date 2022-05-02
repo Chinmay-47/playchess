@@ -1,6 +1,8 @@
+from copy import deepcopy
 from typing import List, Optional, Tuple
 
 import pygame
+from playchess._castling_rights import CastlingRights
 from playchess.board import Board
 from playchess.config import SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR
 from playchess.images import CHESS_PIECE_IMAGES
@@ -22,6 +24,8 @@ class Game:
         self.stale_mate: bool = False
         self.en_passant_available: bool = True
         self.en_passant_to_square: Optional[Tuple[int, int]] = None
+        self.castling_rights: CastlingRights = CastlingRights(True, True, True, True)
+        self.castling_rights_log: List[CastlingRights] = [deepcopy(self.castling_rights)]
 
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
@@ -109,6 +113,9 @@ class Game:
         elif move.piece_moved.is_black() and move.piece_moved.is_king():
             self.chess_board.black_king_location = (move.to_row, move.to_col)
 
+        self._update_castling_rights(move)
+        self.castling_rights_log.append(deepcopy(self.castling_rights))
+
     def change_turn(self):
         """Changes the turns of the game."""
 
@@ -140,6 +147,30 @@ class Game:
             # Update en-passant square if 2 square pawn advance is undone
             if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
                 self.en_passant_to_square = None
+
+            # Update castling rights
+            self.castling_rights_log.pop()
+            self.castling_rights = deepcopy(self.castling_rights_log[-1])
+
+    def _update_castling_rights(self, move: Move):
+        """Updates the castling rights for a given move."""
+
+        if move.piece_moved.is_king() and move.piece_moved.is_white():
+            self.castling_rights.white_king_side = False
+            self.castling_rights.white_queen_side = False
+        elif move.piece_moved.is_king() and move.piece_moved.is_black():
+            self.castling_rights.black_king_side = False
+            self.castling_rights.black_queen_side = False
+        elif move.piece_moved.is_white() and move.piece_moved.is_rook():
+            if move.from_row == 7 and move.from_col == 0:       # Queen side rook
+                self.castling_rights.white_queen_side = False
+            elif move.from_row == 7 and move.from_col == 7:     # King side rook
+                self.castling_rights.white_king_side = False
+        elif move.piece_moved.is_black() and move.piece_moved.is_rook():
+            if move.from_row == 0 and move.from_col == 0:       # Queen side rook
+                self.castling_rights.white_queen_side = False
+            elif move.from_row == 0 and move.from_col == 7:     # King side rook
+                self.castling_rights.white_king_side = False
 
     def get_valid_moves(self) -> List[Move]:
         """Generates all the valid moves in a position."""
