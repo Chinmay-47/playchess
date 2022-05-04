@@ -7,7 +7,7 @@ class Move:
     """Class to represent a chess move."""
 
     def __init__(self, from_square: Tuple[int, int], to_square: Tuple[int, int], board: Board, *,
-                 is_en_passant: bool = False):
+                 is_en_passant: bool = False, is_castle: bool = False):
 
         self.from_square = from_square
         self.to_square = to_square
@@ -32,6 +32,9 @@ class Move:
         self.piece_is_captured = True
         if self.chess_board.is_empty_square(self.to_row, self.to_col):
             self.piece_is_captured = False
+
+        # Castling
+        self.is_castle = is_castle
 
         self.from_square_name = self.chess_board.get_square_name(self.from_row, self.from_col)
         self.to_square_name = self.chess_board.get_square_name(self.to_row, self.to_col)
