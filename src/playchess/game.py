@@ -56,6 +56,25 @@ class Game:
                                                                      row * SQUARE_SIZE,
                                                                      SQUARE_SIZE, SQUARE_SIZE))
 
+    def highlight_selected_square(self, screen: pygame.surface.Surface, square: Optional[Tuple[int, int]]):
+        """Highlights selected square."""
+
+        if not square:
+            return
+
+        row, col = square
+        piece = self.chess_board[row][col]
+
+        white_moving_white = piece.is_white() and self.turn.is_white()
+        black_moving_black = piece.is_black() and not self.turn.is_white()
+        if not white_moving_white or black_moving_black:
+            return
+
+        _new_surface = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+        _new_surface.set_alpha(100)      # 0 = transparent -> 255 = opaque
+        _new_surface.fill(pygame.Color('blue'))
+        screen.blit(_new_surface, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+
     def draw(self, screen: pygame.surface.Surface):
         """Draws the current state of the chess game on a pygame screen."""
 
