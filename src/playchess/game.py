@@ -84,7 +84,6 @@ class Game:
     def make_move(self, move: Move):
         """Makes a chess move."""
 
-        # TODO Implement castling
         self.chess_board.clear_square(move.from_row, move.from_col)
         self.chess_board.update_square(move.to_row, move.to_col, move.piece_moved)
 
@@ -104,14 +103,26 @@ class Game:
         if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
             self.en_passant_to_square = ((move.from_row + move.to_row)//2, move.from_col)
 
-        self.move_log.append(move)
-        self.change_turn()
-
         # Keep track of the king
         if move.piece_moved.is_white() and move.piece_moved.is_king():
             self.chess_board.white_king_location = (move.to_row, move.to_col)
         elif move.piece_moved.is_black() and move.piece_moved.is_king():
             self.chess_board.black_king_location = (move.to_row, move.to_col)
+
+        # Handle castling
+        if move.is_castle:
+            if move.to_col - move.from_col == 2:    # King side castle
+                self.chess_board.update_square(move.to_row, move.to_col - 1,
+                                               self.chess_board[move.to_row][move.to_col + 1])
+                self.chess_board.clear_square(move.to_row, move.to_col + 1)
+
+            else:   # Queen side castle
+                self.chess_board.update_square(move.to_row, move.to_col + 1,
+                                               self.chess_board[move.to_row][move.to_col - 2])
+                self.chess_board.clear_square(move.to_row, move.to_col - 2)
+
+        self.move_log.append(move)
+        self.change_turn()
 
         self._update_castling_rights(move)
         self.castling_rights_log.append(deepcopy(self.castling_rights))
@@ -148,6 +159,17 @@ class Game:
             if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
                 self.en_passant_to_square = None
 
+            if move.is_castle:
+                if move.to_col - move.from_col == 2:    # King side castle
+                    self.chess_board.update_square(move.to_row, move.to_col + 1,
+                                                   self.chess_board[move.to_row][move.to_col - 1])
+                    self.chess_board.clear_square(move.to_row, move.to_col - 1)
+
+                else:   # Queen side castle
+                    self.chess_board.update_square(move.to_row, move.to_col - 2,
+                                                   self.chess_board[move.to_row][move.to_col + 1])
+                    self.chess_board.clear_square(move.to_row, move.to_col + 1)
+
             # Update castling rights
             self.castling_rights_log.pop()
             self.castling_rights = deepcopy(self.castling_rights_log[-1])
@@ -178,6 +200,26 @@ class Game:
         valid_moves: List[Move] = []
 
         all_possible_moves = self._get_all_possible_moves()
+
+        # Castling moves
+        if self.turn.is_white():
+            king_row, king_col = self.chess_board.white_king_location
+        else:
+            king_row, king_col = self.chess_board.black_king_location
+
+        if not self.is_square_attacked(king_row, king_col):  # Cannot castle if checked
+
+            # King side castling
+            _king_side_castle = (self.turn.is_white() and self.castling_rights.white_king_side) or \
+                                (not self.turn.is_white() and self.castling_rights.black_king_side)
+            if _king_side_castle:
+                all_possible_moves.extend(self._get_king_side_castling_moves(king_row, king_col))
+
+            # Queen side castling
+            _queen_side_castle = (self.turn.is_white() and self.castling_rights.white_queen_side) or \
+                                 (not self.turn.is_white() and self.castling_rights.black_queen_side)
+            if _queen_side_castle:
+                all_possible_moves.extend(self._get_queen_side_castling_moves(king_row, king_col))
 
         # We need to keep track of this and reset it, as this value changes while generating valid moves
         temp_en_passant_to_square = self.en_passant_to_square
@@ -433,6 +475,31 @@ class Game:
                 continue
 
             moves.append(Move((row, col), (to_row, to_col), self.chess_board))
+
+        return moves
+
+    def _get_king_side_castling_moves(self, row: int, col: int) -> List[Move]:
+        """Get king side castling moves."""
+
+        moves: List[Move] = []
+
+        if (self.chess_board.is_empty_square(row, col + 1) and self.chess_board.is_empty_square(row, col + 2)) and \
+                (not self.is_square_attacked(row, col + 1) and not self.is_square_attacked(row, col + 2)):
+            moves.append((Move((row, col), (row, col + 2), self.chess_board, is_castle=True)))
+
+        return moves
+
+    def _get_queen_side_castling_moves(self, row: int, col: int) -> List[Move]:
+        """Get queen side castling moves."""
+
+        moves: List[Move] = []
+
+        if (self.chess_board.is_empty_square(row, col - 1) and
+            self.chess_board.is_empty_square(row, col - 2) and
+            self.chess_board.is_empty_square(row, col - 3)) and \
+                (not self.is_square_attacked(row, col - 1) and
+                 not self.is_square_attacked(row, col - 2)):
+            moves.append((Move((row, col), (row, col - 2), self.chess_board, is_castle=True)))
 
         return moves
 
