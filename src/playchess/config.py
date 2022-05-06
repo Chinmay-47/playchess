@@ -16,3 +16,11 @@ BACKGROUND_COLOUR = "white"     # Background color of the board
 LIGHT_SQUARE_COLOUR = "white"   # Colour of light squares
 
 DARK_SQUARE_COLOUR = "gray"   # Colour of light squares
+
+SELECTED_SQUARE_COLOUR = "blue"     # Colour of selected square
+
+SELECTED_SQUARE_ALPHA = 100         # Transparency of selected square colour (0 = transparent -> 255 = opaque)
+
+MOVABLE_SQUARE_COLOUR = "yellow"    # Colour of squares to which selected piece can be moved
+
+MOVABLE_SQUARE_ALPHA = 100         # Transparency of movable squares colour (0 = transparent -> 255 = opaque)
