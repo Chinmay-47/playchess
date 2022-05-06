@@ -4,7 +4,8 @@ from typing import List, Optional, Tuple
 import pygame
 from playchess._castling_rights import CastlingRights
 from playchess.board import Board
-from playchess.config import SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR
+from playchess.config import (SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR, SELECTED_SQUARE_COLOUR,
+                              SELECTED_SQUARE_ALPHA, MOVABLE_SQUARE_COLOUR, MOVABLE_SQUARE_ALPHA)
 from playchess.images import CHESS_PIECE_IMAGES
 from playchess.move import Move
 from playchess.piece import Piece
@@ -71,9 +72,26 @@ class Game:
             return
 
         _new_surface = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-        _new_surface.set_alpha(100)      # 0 = transparent -> 255 = opaque
-        _new_surface.fill(pygame.Color('blue'))
+        _new_surface.set_alpha(SELECTED_SQUARE_ALPHA)
+        _new_surface.fill(pygame.Color(SELECTED_SQUARE_COLOUR))
         screen.blit(_new_surface, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+
+    @staticmethod
+    def highlight_valid_moves(screen: pygame.surface.Surface, square: Optional[Tuple[int, int]],
+                              moves: List[Move]):
+        """Highlights valid moves of a piece from a given square."""
+
+        if not square:
+            return
+
+        for move in moves:
+            if move.from_square != square:
+                continue
+            row, col = move.to_square
+            _new_surface = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+            _new_surface.set_alpha(MOVABLE_SQUARE_ALPHA)
+            _new_surface.fill(pygame.Color(MOVABLE_SQUARE_COLOUR))
+            screen.blit(_new_surface, (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
     def draw(self, screen: pygame.surface.Surface):
         """Draws the current state of the chess game on a pygame screen."""
