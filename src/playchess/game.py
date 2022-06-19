@@ -93,10 +93,12 @@ class Game:
             _new_surface.fill(pygame.Color(MOVABLE_SQUARE_COLOUR))
             screen.blit(_new_surface, (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
-    def draw(self, screen: pygame.surface.Surface):
+    def draw(self, screen: pygame.surface.Surface, square: Optional[Tuple[int, int]], moves: List[Move]):
         """Draws the current state of the chess game on a pygame screen."""
 
         self._draw_board(screen)
+        self.highlight_selected_square(screen, square)
+        self.highlight_valid_moves(screen, square, moves)
         self._draw_board_pieces(screen)
 
     def moves_made(self, last_n: Optional[int] = None) -> List[Move]:
