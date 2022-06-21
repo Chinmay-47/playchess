@@ -1,6 +1,7 @@
 from typing import List, Tuple, Union
 
 import pygame
+from playchess._utils import draw_text
 from playchess.board import Board
 from playchess.config import WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX_FPS
 from playchess.game import Game
@@ -22,7 +23,10 @@ def play():
     selected_square: Union[Tuple[int, int], None] = None
 
     valid_moves = game.get_valid_moves()
+    # [print(item) for item in valid_moves]
+    # print("#" * 50)
     board_state_changed: bool = False
+    game_over: bool = False
 
     while True:
         for e in pygame.event.get():
@@ -30,6 +34,8 @@ def play():
                 quit(0)
 
             elif e.type == pygame.MOUSEBUTTONDOWN:
+                if game_over:
+                    continue
 
                 # (x, y) location of mouse click
                 click_location = pygame.mouse.get_pos()
@@ -56,20 +62,37 @@ def play():
                     move_making_clicks.clear()
 
             elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_u:
+                if e.key == pygame.K_u:     # click 'u' to undo move
                     game.undo_move()
                     board_state_changed = True
 
-                elif e.key == pygame.K_q:
+                elif e.key == pygame.K_r:   # click 'r' to reset game
+                    game = Game(Board())
+                    valid_moves = game.get_valid_moves()
+                    move_making_clicks: List[Tuple[int, int]] = []
+                    selected_square: Union[Tuple[int, int], None] = None
+                    board_state_changed: bool = False
+
+                elif e.key == pygame.K_q:   # click 'q' to quit game
                     quit(0)
 
         if board_state_changed:
             valid_moves = game.get_valid_moves()
+            # [print(item) for item in valid_moves]
+            # print("#" * 50)
             board_state_changed = False
+
+        game_over = True if game.check_mate or game.stale_mate else False
+        if game.check_mate and game.turn.is_white():
+            draw_text(screen, "Black wins by Checkmate!")
+        elif game.check_mate and not game.turn.is_white():
+            draw_text(screen, "White wins by Checkmate!")
+        elif game.stale_mate:
+            draw_text(screen, "Stalemate!")
 
         clock.tick(MAX_FPS)
         pygame.display.flip()
-        game.draw(screen)
+        game.draw(screen, selected_square, valid_moves)
 
 
 if __name__ == '__main__':
