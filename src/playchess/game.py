@@ -27,6 +27,7 @@ class Game:
         self.en_passant_to_square: Optional[Tuple[int, int]] = None
         self.castling_rights: CastlingRights = CastlingRights(True, True, True, True)
         self.castling_rights_log: List[CastlingRights] = [deepcopy(self.castling_rights)]
+        self.en_passant_to_square_log: List[Optional[Tuple[int, int]]] = [None]
 
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
@@ -68,7 +69,7 @@ class Game:
 
         white_moving_white = piece.is_white() and self.turn.is_white()
         black_moving_black = piece.is_black() and not self.turn.is_white()
-        if not white_moving_white or black_moving_black:
+        if not (white_moving_white or black_moving_black):
             return
 
         _new_surface = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
@@ -93,12 +94,12 @@ class Game:
             _new_surface.fill(pygame.Color(MOVABLE_SQUARE_COLOUR))
             screen.blit(_new_surface, (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
-    def draw(self, screen: pygame.surface.Surface, square: Optional[Tuple[int, int]], moves: List[Move]):
+    def draw(self, screen: pygame.surface.Surface, square: Optional[Tuple[int, int]], val_moves: List[Move]):
         """Draws the current state of the chess game on a pygame screen."""
 
         self._draw_board(screen)
         self.highlight_selected_square(screen, square)
-        self.highlight_valid_moves(screen, square, moves)
+        self.highlight_valid_moves(screen, square, val_moves)
         self._draw_board_pieces(screen)
 
     def moves_made(self, last_n: Optional[int] = None) -> List[Move]:
@@ -138,9 +139,15 @@ class Game:
             self.en_passant_available = False
             self.en_passant_to_square = None
 
+        if self.en_passant_to_square is not None and self.en_passant_available and not move.is_en_passant:
+            self.en_passant_to_square = None
+
         # Update en-passant square
         if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
             self.en_passant_to_square = ((move.from_row + move.to_row)//2, move.from_col)
+
+        if not move.piece_moved.is_pawn():
+            self.en_passant_to_square = None
 
         # Keep track of the king
         if move.piece_moved.is_white() and move.piece_moved.is_king():
@@ -160,6 +167,7 @@ class Game:
                                                self.chess_board[move.to_row][move.to_col - 2])
                 self.chess_board.clear_square(move.to_row, move.to_col - 2)
 
+        self.en_passant_to_square_log.append(self.en_passant_to_square)
         self.move_log.append(move)
         self.change_turn()
 
@@ -182,9 +190,12 @@ class Game:
                 self.chess_board.clear_square(move.to_row, move.to_col)
                 self.chess_board.update_square(move.from_row, move.to_col, move.piece_captured)
                 self.en_passant_available = True
-                self.en_passant_to_square = move.to_square
             else:
                 self.chess_board.update_square(move.to_row, move.to_col, move.piece_captured)
+
+            # Update en-passant square
+            self.en_passant_to_square_log.pop()
+            self.en_passant_to_square = self.en_passant_to_square_log[-1]
 
             self.change_turn()
 
@@ -193,10 +204,6 @@ class Game:
                 self.chess_board.white_king_location = (move.from_row, move.from_col)
             elif move.piece_moved.is_black() and move.piece_moved.is_king():
                 self.chess_board.black_king_location = (move.from_row, move.from_col)
-
-            # Update en-passant square if 2 square pawn advance is undone
-            if move.piece_moved.is_pawn() and abs(move.from_row - move.to_row) == 2:
-                self.en_passant_to_square = None
 
             if move.is_castle:
                 if move.to_col - move.from_col == 2:    # King side castle
