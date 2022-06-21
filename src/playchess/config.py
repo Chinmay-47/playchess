@@ -28,3 +28,9 @@ MOVABLE_SQUARE_ALPHA = 100         # Transparency of movable squares colour (0 =
 END_GAME_FONT_COLOUR = "black"      # Colour of the game over text
 
 END_GAME_FONT_SIZE = 32             # Size of game over text
+
+BLACK_WINS_TEXT = "Black wins by Checkmate!"
+
+WHITE_WINS_TEXT = "White wins by Checkmate!"
+
+STALEMATE_TEXT = "Stalemate!"
