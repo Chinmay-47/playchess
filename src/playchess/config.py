@@ -24,3 +24,7 @@ SELECTED_SQUARE_ALPHA = 100         # Transparency of selected square colour (0 
 MOVABLE_SQUARE_COLOUR = "yellow"    # Colour of squares to which selected piece can be moved
 
 MOVABLE_SQUARE_ALPHA = 100         # Transparency of movable squares colour (0 = transparent -> 255 = opaque)
+
+END_GAME_FONT_COLOUR = "black"      # Colour of the game over text
+
+END_GAME_FONT_SIZE = 32             # Size of game over text
