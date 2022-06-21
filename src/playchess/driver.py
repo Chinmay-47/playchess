@@ -3,7 +3,8 @@ from typing import List, Tuple, Union
 import pygame
 from playchess._utils import draw_text
 from playchess.board import Board
-from playchess.config import WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX_FPS
+from playchess.config import (WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX_FPS,
+                              BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT)
 from playchess.game import Game
 from playchess.move import Move
 
@@ -69,9 +70,9 @@ def play():
                 elif e.key == pygame.K_r:   # click 'r' to reset game
                     game = Game(Board())
                     valid_moves = game.get_valid_moves()
-                    move_making_clicks: List[Tuple[int, int]] = []
-                    selected_square: Union[Tuple[int, int], None] = None
-                    board_state_changed: bool = False
+                    move_making_clicks = []
+                    selected_square = None
+                    board_state_changed = False
 
                 elif e.key == pygame.K_q:   # click 'q' to quit game
                     quit(0)
@@ -84,11 +85,11 @@ def play():
 
         game_over = True if game.check_mate or game.stale_mate else False
         if game.check_mate and game.turn.is_white():
-            draw_text(screen, "Black wins by Checkmate!")
+            draw_text(screen, BLACK_WINS_TEXT)
         elif game.check_mate and not game.turn.is_white():
-            draw_text(screen, "White wins by Checkmate!")
+            draw_text(screen, WHITE_WINS_TEXT)
         elif game.stale_mate:
-            draw_text(screen, "Stalemate!")
+            draw_text(screen, STALEMATE_TEXT)
 
         clock.tick(MAX_FPS)
         pygame.display.flip()
