@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import pygame
 from playchess._utils import draw_text
@@ -24,8 +24,7 @@ def play():
     selected_square: Union[Tuple[int, int], None] = None
 
     valid_moves = game.get_valid_moves()
-    # [print(item) for item in valid_moves]
-    # print("#" * 50)
+
     board_state_changed: bool = False
     game_over: bool = False
 
@@ -38,27 +37,13 @@ def play():
                 if game_over:
                     continue
 
-                # (x, y) location of mouse click
-                click_location = pygame.mouse.get_pos()
-                selected_col = click_location[0] // SQUARE_SIZE
-                selected_row = click_location[1] // SQUARE_SIZE
+                selected_square, move_making_clicks, move = _handle_user_click(selected_square,
+                                                                               move_making_clicks,
+                                                                               game.chess_board)
 
-                # If already selected square is selected, clear move_making_clicks and selected_square
-                if selected_square == (selected_row, selected_col):
-                    selected_square = None
-                    move_making_clicks = []
-                else:
-                    selected_square = (selected_row, selected_col)
-                    move_making_clicks.append(selected_square)  # Append both clicks
-
-                if len(move_making_clicks) == 2:    # After second click
-                    move = Move(move_making_clicks[0], move_making_clicks[1], game.chess_board)
-
-                    for valid_move in valid_moves:
-                        if valid_move == move:
-                            game.make_move(valid_move)
-                            board_state_changed = True
-                            break
+                if move is not None and move in valid_moves:
+                    game.make_move(move)
+                    board_state_changed = True
                     selected_square = None
                     move_making_clicks.clear()
 
@@ -79,21 +64,51 @@ def play():
 
         if board_state_changed:
             valid_moves = game.get_valid_moves()
-            # [print(item) for item in valid_moves]
-            # print("#" * 50)
             board_state_changed = False
 
         game_over = True if game.check_mate or game.stale_mate else False
-        if game.check_mate and game.turn.is_white():
-            draw_text(screen, BLACK_WINS_TEXT)
-        elif game.check_mate and not game.turn.is_white():
-            draw_text(screen, WHITE_WINS_TEXT)
-        elif game.stale_mate:
-            draw_text(screen, STALEMATE_TEXT)
+        if game_over:
+            _display_game_over_text(screen, game)
 
         clock.tick(MAX_FPS)
         pygame.display.flip()
         game.draw(screen, selected_square, valid_moves)
+
+
+def _handle_user_click(prev_sel_square: Union[Tuple[int, int], None], move_clicks: List[Tuple[int, int]],
+                       board: Board) -> Tuple[Union[Tuple[int, int], None], List[Tuple[int, int]], Optional[Move]]:
+    """Handles a user click event in pygame and returns selected square, move making clicks and move to make."""
+
+    move: Optional[Move] = None
+
+    # (x, y) location of mouse click
+    click_location = pygame.mouse.get_pos()
+    selected_col = click_location[0] // SQUARE_SIZE
+    selected_row = click_location[1] // SQUARE_SIZE
+
+    # If already selected square is selected, clear move_making_clicks and selected_square
+    if prev_sel_square == (selected_row, selected_col):
+        square_selected = None
+        move_clicks = []
+    else:
+        square_selected = (selected_row, selected_col)
+        move_clicks.append(square_selected)  # Append both clicks
+
+    if len(move_clicks) == 2:  # After second click
+        move = Move(move_clicks[0], move_clicks[1], board)
+
+    return square_selected, move_clicks, move
+
+
+def _display_game_over_text(screen: pygame.surface.Surface, game_: Game):
+    """Display game over text using game state."""
+
+    if game_.check_mate and game_.turn.is_white():
+        draw_text(screen, BLACK_WINS_TEXT)
+    elif game_.check_mate and not game_.turn.is_white():
+        draw_text(screen, WHITE_WINS_TEXT)
+    elif game_.stale_mate:
+        draw_text(screen, STALEMATE_TEXT)
 
 
 if __name__ == '__main__':
