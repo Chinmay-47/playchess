@@ -7,9 +7,13 @@ from playchess.config import (WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX
                               BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT)
 from playchess.game import Game
 from playchess.move import Move
+from playchess.move_finder import find_random_move
 
 
-def play():
+AI_MOVE_FINDERS = {"random": find_random_move, }
+
+
+def play(player1: str = "human", player2: str = "bot", ai: str = "random"):
     """
     Main driver to play the game.
     """
@@ -28,13 +32,19 @@ def play():
     board_state_changed: bool = False
     game_over: bool = False
 
+    human_plays_white: bool = True if player1 == "human" else False
+    human_plays_black: bool = True if player2 == "human" else False
+
     while True:
+        human_turn = (game.turn.is_white() and human_plays_white) or \
+                     (not game.turn.is_white() and human_plays_black)
+
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 quit(0)
 
             elif e.type == pygame.MOUSEBUTTONDOWN:
-                if game_over:
+                if game_over or not human_turn:
                     continue
 
                 selected_square, move_making_clicks, move = _handle_user_click(selected_square,
@@ -73,6 +83,12 @@ def play():
         clock.tick(MAX_FPS)
         pygame.display.flip()
         game.draw(screen, selected_square, valid_moves)
+
+        # AI moves
+        if not human_turn and not game_over:
+            ai_move = AI_MOVE_FINDERS[ai](valid_moves)
+            game.make_move(ai_move)
+            board_state_changed = True
 
 
 def _handle_user_click(prev_sel_square: Union[Tuple[int, int], None], move_clicks: List[Tuple[int, int]],
