@@ -36,12 +36,7 @@ def find_best_material_move(game_: Game, moves: List[Move]) -> Move:
     for move in moves:
         game_.make_move(move)
 
-        if game_.check_mate:
-            score = -CHECKMATE_ABS_SCORE if game_.turn.is_white() else CHECKMATE_ABS_SCORE
-        elif game_.stale_mate:
-            score = STALEMATE_SCORE
-        else:
-            score = find_material_score(game_.chess_board)
+        score = find_material_score(game_)
 
         if ((score < score_to_beat) and game_.turn.is_white()) or \
                 ((score > score_to_beat) and not game_.turn.is_white()):
@@ -53,11 +48,18 @@ def find_best_material_move(game_: Game, moves: List[Move]) -> Move:
     return best_move
 
 
-def find_material_score(board: Board) -> int:
+def find_material_score(game: Game) -> int:
     """Finds the score of a based on the material."""
 
+    if game.turn.is_white() and game.check_mate:
+        return -CHECKMATE_ABS_SCORE
+    elif not game.turn.is_white() and game.check_mate:
+        return CHECKMATE_ABS_SCORE
+    elif game.stale_mate:
+        return STALEMATE_SCORE
+
     score = 0
-    for row in board:
+    for row in game.chess_board:
         for piece_ in row:
             if piece_.is_none():
                 continue
