@@ -29,6 +29,12 @@ class Game:
         self.castling_rights_log: List[CastlingRights] = [deepcopy(self.castling_rights)]
         self.en_passant_to_square_log: List[Optional[Tuple[int, int]]] = [None]
 
+    def __eq__(self, other):
+        return self.game_sequence == other.game_sequence
+
+    def __hash__(self):
+        return hash(self.game_sequence)
+
     def _draw_board_pieces(self, screen: pygame.surface.Surface):
         """Draws the chess pieces according to the board state."""
 
