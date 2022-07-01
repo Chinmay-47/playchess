@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Union
 
 import pygame
 from playchess._utils import draw_text
@@ -7,13 +7,16 @@ from playchess.config import (WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX
                               BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT)
 from playchess.game import Game
 from playchess.move import Move
-from playchess.move_finder import find_random_move, find_best_material_move
+from playchess.move_finder import (RandomMoveFinder, MaterialMoveFinder, MinMaxMoveFinder, PrunedMinMaxMoveFinder)
 
 
-AI_MOVE_FINDERS = {"random": find_random_move, "material": find_best_material_move}
+AI_MOVE_FINDERS = {"random": RandomMoveFinder,
+                   "material": MaterialMoveFinder,
+                   "minmax": MinMaxMoveFinder,
+                   "minmax_pruned": PrunedMinMaxMoveFinder}
 
 
-def play(player1: str = "human", player2: str = "bot", ai: str = "random"):
+def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned", depth: int = 2):
     """
     Main driver to play the game.
     """
@@ -100,10 +103,14 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "random"):
 
         # AI moves
         if not human_turn and not game_over:
-            if ai != "random":
-                ai_move = AI_MOVE_FINDERS[ai](game, valid_moves)
+            ai_move_finder = AI_MOVE_FINDERS[ai]
+            if ai == "random":
+                ai_move = ai_move_finder(valid_moves).find_move()
+            elif ai == "material":
+                ai_move = ai_move_finder(game, valid_moves)
             else:
-                ai_move = AI_MOVE_FINDERS[ai](valid_moves)
+                ai_move = ai_move_finder(game, valid_moves, depth)
+
             game.make_move(ai_move)
             board_state_changed = True
 
@@ -120,4 +127,4 @@ def _display_game_over_text(screen: pygame.surface.Surface, game_: Game):
 
 
 if __name__ == '__main__':
-    play(ai="material", player2="bot")
+    play(ai="minmax", depth=3)
