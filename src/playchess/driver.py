@@ -107,9 +107,9 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned"
             if ai == "random":
                 ai_move = ai_move_finder(valid_moves).find_move()
             elif ai == "material":
-                ai_move = ai_move_finder(game, valid_moves)
+                ai_move = ai_move_finder(game, valid_moves).find_move()
             else:
-                ai_move = ai_move_finder(game, valid_moves, depth)
+                ai_move = ai_move_finder(game, valid_moves, depth).find_move()
 
             game.make_move(ai_move)
             board_state_changed = True
@@ -127,4 +127,4 @@ def _display_game_over_text(screen: pygame.surface.Surface, game_: Game):
 
 
 if __name__ == '__main__':
-    play(ai="minmax", depth=3)
+    play(ai="minmax_pruned", depth=3)
