@@ -26,7 +26,7 @@ class Game:
         self.en_passant_available: bool = True
         self.en_passant_to_square: Optional[Tuple[int, int]] = None
         self.castling_rights: CastlingRights = CastlingRights(True, True, True, True)
-        self.castling_rights_log: List[CastlingRights] = [self.castling_rights]
+        self.castling_rights_log: List[CastlingRights] = [copy(self.castling_rights)]
         self.en_passant_to_square_log: List[Optional[Tuple[int, int]]] = [None]
 
     def __eq__(self, other):
