@@ -193,3 +193,47 @@ class PrunedMinMaxMoveFinder(MoveFinder):
         set_best_move_min_max_recursive(self.game, self.valid_moves, self.depth, self.game.turn.is_white())
 
         return best_move
+
+
+class PrunedNegaMaxMoveFinder(MoveFinder):
+    """Class represents a negamax based recursive move finder in chess with alpha beta pruning."""
+
+    def __init__(self, game: Game, valid_moves: List[Move], depth):
+        self.game = game
+        self.valid_moves = valid_moves
+        self.depth = depth
+
+    def find_move(self) -> Optional[Move]:
+        """Returns a move resulting in best min max score with alpha beta pruning."""
+
+        best_move: Optional[Move] = None
+
+        def set_best_move_nega_max_recursive(game_: Game, valid_moves_: List[Move], depth_: int, turn_multiplier: int):
+
+            nonlocal best_move
+
+            if depth_ == 0:
+                return turn_multiplier + find_material_score(game_)
+
+            random.shuffle(valid_moves_)        # Same moves are repeated if not shuffled
+
+            # Always maximize for both agents (multiply score by -1 for minimizer)
+            score_to_beat = -CHECKMATE_ABS_SCORE
+            for valid_move in valid_moves_:
+
+                game_.make_move(valid_move)
+                score = -set_best_move_nega_max_recursive(game_, game_.get_valid_moves(), depth_ - 1, -turn_multiplier)
+
+                if score > score_to_beat:
+                    score_to_beat = score
+                    if depth_ == self.depth:
+                        best_move = valid_move
+
+                game_.undo_move()
+
+            return score_to_beat
+
+        _turn_multiplier = 1 if self.game.turn.is_white() else -1
+        set_best_move_nega_max_recursive(self.game, self.valid_moves, self.depth, _turn_multiplier)
+
+        return best_move
