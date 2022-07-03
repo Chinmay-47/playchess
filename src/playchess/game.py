@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 from typing import List, Optional, Tuple
 
 import pygame
@@ -26,7 +26,7 @@ class Game:
         self.en_passant_available: bool = True
         self.en_passant_to_square: Optional[Tuple[int, int]] = None
         self.castling_rights: CastlingRights = CastlingRights(True, True, True, True)
-        self.castling_rights_log: List[CastlingRights] = [deepcopy(self.castling_rights)]
+        self.castling_rights_log: List[CastlingRights] = [self.castling_rights]
         self.en_passant_to_square_log: List[Optional[Tuple[int, int]]] = [None]
 
     def __eq__(self, other):
@@ -178,7 +178,7 @@ class Game:
         self.change_turn()
 
         self._update_castling_rights(move)
-        self.castling_rights_log.append(deepcopy(self.castling_rights))
+        self.castling_rights_log.append(copy(self.castling_rights))
 
     def change_turn(self):
         """Changes the turns of the game."""
@@ -224,7 +224,7 @@ class Game:
 
             # Update castling rights
             self.castling_rights_log.pop()
-            self.castling_rights = deepcopy(self.castling_rights_log[-1])
+            self.castling_rights = copy(self.castling_rights_log[-1])
 
     def _update_castling_rights(self, move: Move):
         """Updates the castling rights for a given move."""
