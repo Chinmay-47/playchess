@@ -14,7 +14,8 @@ class Move:
         self.from_row, self.from_col = self.from_square
         self.to_row, self.to_col = self.to_square
 
-        self.chess_board = board.deep_copy()
+        # self.chess_board = board.deep_copy()
+        self.chess_board = board
 
         self.piece_moved = self.chess_board[self.from_row][self.from_col]
         self.piece_captured = self.chess_board[self.to_row][self.to_col]
