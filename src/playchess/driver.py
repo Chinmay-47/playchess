@@ -1,14 +1,13 @@
 from typing import List, Tuple, Union
 
 import pygame
-from playchess._utils import draw_text
+from playchess._utils import draw_game_over_text
 from playchess.board import Board
 from playchess.config import (WIDTH, HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX_FPS,
                               BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT)
 from playchess.game import Game
 from playchess.move import Move
 from playchess.move_finder import (RandomMoveFinder, MaterialMoveFinder, MinMaxMoveFinder, PrunedMinMaxMoveFinder)
-
 
 AI_MOVE_FINDERS = {"random": RandomMoveFinder,
                    "material": MaterialMoveFinder,
@@ -119,11 +118,11 @@ def _display_game_over_text(screen: pygame.surface.Surface, game_: Game):
     """Display game over text using game state."""
 
     if game_.check_mate and game_.turn.is_white():
-        draw_text(screen, BLACK_WINS_TEXT)
+        draw_game_over_text(screen, BLACK_WINS_TEXT)
     elif game_.check_mate and not game_.turn.is_white():
-        draw_text(screen, WHITE_WINS_TEXT)
+        draw_game_over_text(screen, WHITE_WINS_TEXT)
     elif game_.stale_mate:
-        draw_text(screen, STALEMATE_TEXT)
+        draw_game_over_text(screen, STALEMATE_TEXT)
 
 
 if __name__ == '__main__':
