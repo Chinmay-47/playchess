@@ -4,10 +4,11 @@ import pygame
 from playchess._utils import draw_game_over_text
 from playchess.board import Board
 from playchess.config import (BOARD_WIDTH, BOARD_HEIGHT, BACKGROUND_COLOUR, SQUARE_SIZE, MAX_FPS,
-                              BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT)
+                              BLACK_WINS_TEXT, WHITE_WINS_TEXT, STALEMATE_TEXT, MOVE_LOG_PANEL_WIDTH)
 from playchess.game import Game
 from playchess.move import Move
 from playchess.move_finder import (RandomMoveFinder, MaterialMoveFinder, MinMaxMoveFinder, PrunedMinMaxMoveFinder)
+
 
 AI_MOVE_FINDERS = {"random": RandomMoveFinder,
                    "material": MaterialMoveFinder,
@@ -21,7 +22,7 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned"
     """
 
     pygame.init()
-    screen = pygame.display.set_mode((BOARD_WIDTH, BOARD_HEIGHT))
+    screen = pygame.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
     clock = pygame.time.Clock()
     screen.fill(pygame.Color(BACKGROUND_COLOUR))
     game = Game(Board())
