@@ -55,8 +55,9 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned"
                 selected_col = click_location[0] // SQUARE_SIZE
                 selected_row = click_location[1] // SQUARE_SIZE
 
-                # If already selected square is selected, clear move_making_clicks and selected_square
-                if selected_square == (selected_row, selected_col):
+                # If already selected square is selected or user clicks move log,
+                # clear move_making_clicks and selected_square
+                if selected_square == (selected_row, selected_col) or selected_col > 7:
                     selected_square = None
                     move_making_clicks = []
                 else:
