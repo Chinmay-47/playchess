@@ -2,7 +2,7 @@ import pygame
 from playchess.config import WIDTH, HEIGHT, END_GAME_FONT_COLOUR, END_GAME_FONT_SIZE
 
 
-def draw_text(screen: pygame.surface.Surface, text: str) -> None:
+def draw_game_over_text(screen: pygame.surface.Surface, text: str) -> None:
     """Draws text onto a pygame screen."""
 
     font = pygame.font.Font(pygame.font.get_default_font(), END_GAME_FONT_SIZE)
