@@ -2,12 +2,14 @@
 Configuration settings for playchess.
 """
 
+import pygame
 
-WIDTH = HEIGHT = 512     # Width and Height of the chess board
+
+BOARD_WIDTH = BOARD_HEIGHT = 512     # Width and Height of the chess board
 
 DIMENSIONS = 8  # Chess board is 8x8
 
-SQUARE_SIZE = HEIGHT // DIMENSIONS  # Size of each square
+SQUARE_SIZE = BOARD_HEIGHT // DIMENSIONS  # Size of each square
 
 MAX_FPS = 15    # For Animations
 
@@ -34,3 +36,13 @@ BLACK_WINS_TEXT = "Black wins by Checkmate!"
 WHITE_WINS_TEXT = "White wins by Checkmate!"
 
 STALEMATE_TEXT = "Stalemate!"
+
+MOVE_LOG_PANEL_WIDTH = 250
+
+MOVE_LOG_PANEL_HEIGHT = BOARD_HEIGHT
+
+MOVE_LOG_PANEL_BACKGROUND_COLOUR = "black"
+
+MOVE_LOG_FONT_SIZE = 12
+
+MOVE_LOG_FONT_COLOUR = "white"
