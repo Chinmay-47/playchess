@@ -44,11 +44,22 @@ class Move:
         if not self.piece_is_captured:
             return self.piece_moved.value + self.from_square_name + self.to_square_name
 
-        return self.piece_moved.value + self.from_square_name + "X" + self.piece_captured.value + self.to_square_name
+        return self.piece_moved.value + self.from_square_name + "x" + self.piece_captured.value + self.to_square_name
 
     @property
     def name(self):
         return self.__str__()
+
+    @property
+    def move_log_name(self):
+
+        if self.is_castle:
+            return "O-O" if self.to_col == 6 else "O-O-O"
+
+        if not self.piece_is_captured:
+            return self.from_square_name + self.to_square_name
+
+        return self.from_square_name + "x" + self.to_square_name
 
     def __eq__(self, other):
         return self.name == other.name
