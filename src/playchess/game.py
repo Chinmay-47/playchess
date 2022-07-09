@@ -5,7 +5,9 @@ import pygame
 from playchess._castling_rights import CastlingRights
 from playchess.board import Board
 from playchess.config import (SQUARE_SIZE, DIMENSIONS, LIGHT_SQUARE_COLOUR, DARK_SQUARE_COLOUR, SELECTED_SQUARE_COLOUR,
-                              SELECTED_SQUARE_ALPHA, MOVABLE_SQUARE_COLOUR, MOVABLE_SQUARE_ALPHA)
+                              SELECTED_SQUARE_ALPHA, MOVABLE_SQUARE_COLOUR, MOVABLE_SQUARE_ALPHA, BOARD_WIDTH,
+                              MOVE_LOG_PANEL_WIDTH, MOVE_LOG_PANEL_HEIGHT, MOVE_LOG_PANEL_BACKGROUND_COLOUR,
+                              MOVE_LOG_FONT_COLOUR, MOVE_LOG_FONT_SIZE)
 from playchess.images import CHESS_PIECE_IMAGES
 from playchess.move import Move
 from playchess.piece import Piece
@@ -64,6 +66,28 @@ class Game:
                                                                      row * SQUARE_SIZE,
                                                                      SQUARE_SIZE, SQUARE_SIZE))
 
+    def _draw_move_log(self, screen: pygame.surface.Surface):
+        """Draws the game sequence."""
+
+        move_log_rect = pygame.Rect(BOARD_WIDTH, 0, MOVE_LOG_PANEL_WIDTH, MOVE_LOG_PANEL_HEIGHT)
+        pygame.draw.rect(screen, pygame.Color(MOVE_LOG_PANEL_BACKGROUND_COLOUR), move_log_rect)
+        font = pygame.font.Font(pygame.font.get_default_font(), MOVE_LOG_FONT_SIZE)
+
+        line_num = 0
+        col_num = 0
+        for move_num, move in enumerate(self.move_log):
+
+            text_obj = font.render("{0}. {1}".format(move_num + 1, move.move_log_name),
+                                   True, pygame.Color(MOVE_LOG_FONT_COLOUR))
+
+            if move_num > 0 and move_num % 3 == 0:
+                line_num += 1
+                col_num = 0
+
+            text_loc = move_log_rect.move(col_num * MOVE_LOG_PANEL_WIDTH // 3, line_num * (MOVE_LOG_FONT_SIZE + 5))
+            screen.blit(text_obj, text_loc)
+            col_num += 1
+
     def highlight_selected_square(self, screen: pygame.surface.Surface, square: Optional[Tuple[int, int]]):
         """Highlights selected square."""
 
@@ -107,6 +131,7 @@ class Game:
         self.highlight_selected_square(screen, square)
         self.highlight_valid_moves(screen, square, val_moves)
         self._draw_board_pieces(screen)
+        self._draw_move_log(screen)
 
     def moves_made(self, last_n: Optional[int] = None) -> List[Move]:
         """Shows moves made previously"""
