@@ -1,11 +1,10 @@
 import random
-from typing import List, Optional, Union
 from abc import ABC
+from typing import List, Optional, Union
 
 from playchess.game import Game
 from playchess.move import Move
-
-from playchess.scorer import CHECKMATE_ABS_SCORE, find_material_score
+from playchess.scorer import CHECKMATE_ABS_SCORE, find_game_score
 
 
 class MoveFinder(ABC):
@@ -30,9 +29,10 @@ class RandomMoveFinder(MoveFinder):
 class MaterialMoveFinder(MoveFinder):
     """Class represents a purely material based move finder in chess."""
 
-    def __init__(self, game: Game, valid_moves: List[Move]):
+    def __init__(self, game: Game, valid_moves: List[Move], use_positional_scoring: bool = True):
         self.game = game
         self.valid_moves = valid_moves
+        self.use_positional_scoring = use_positional_scoring
 
     def find_move(self) -> Optional[Move]:
         """Returns a move which gives most material advantage."""
@@ -44,7 +44,7 @@ class MaterialMoveFinder(MoveFinder):
         for valid_move in self.valid_moves:
             self.game.make_move(valid_move)
 
-            score = find_material_score(self.game)
+            score = find_game_score(self.game, self.use_positional_scoring)
 
             if ((score < score_to_beat) and self.game.turn.is_white()) or \
                     ((score > score_to_beat) and not self.game.turn.is_white()):
@@ -59,10 +59,11 @@ class MaterialMoveFinder(MoveFinder):
 class MinMaxMoveFinder(MoveFinder):
     """Class represents a min max based recursive move finder in chess."""
 
-    def __init__(self, game: Game, valid_moves: List[Move], depth):
+    def __init__(self, game: Game, valid_moves: List[Move], depth: int, use_positional_scoring: bool = True):
         self.game = game
         self.valid_moves = valid_moves
         self.depth = depth
+        self.use_positional_scoring = use_positional_scoring
 
     def find_move(self) -> Optional[Move]:
         """Returns a move resulting in best min max score."""
@@ -74,7 +75,7 @@ class MinMaxMoveFinder(MoveFinder):
             nonlocal best_move
 
             if depth_ == 0:
-                return find_material_score(game_)
+                return find_game_score(game_, self.use_positional_scoring)
 
             random.shuffle(valid_moves_)    # Same moves are repeated if not shuffled
 
@@ -123,10 +124,11 @@ class MinMaxMoveFinder(MoveFinder):
 class PrunedMinMaxMoveFinder(MoveFinder):
     """Class represents a min max based recursive move finder in chess with alpha beta pruning."""
 
-    def __init__(self, game: Game, valid_moves: List[Move], depth):
+    def __init__(self, game: Game, valid_moves: List[Move], depth: int, use_positional_scoring: bool = True):
         self.game = game
         self.valid_moves = valid_moves
         self.depth = depth
+        self.use_positional_scoring = use_positional_scoring
 
     def find_move(self) -> Optional[Move]:
         """Returns a move resulting in best min max score with alpha beta pruning."""
@@ -139,7 +141,7 @@ class PrunedMinMaxMoveFinder(MoveFinder):
             nonlocal best_move
 
             if depth_ == 0:
-                return find_material_score(game_)
+                return find_game_score(game_, self.use_positional_scoring)
 
             random.shuffle(valid_moves_)        # Same moves are repeated if not shuffled
 
