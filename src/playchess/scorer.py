@@ -30,7 +30,7 @@ POSITIONAL_SCORES = {Piece.WHITE_KNIGHT: ((1, 1, 1, 1, 1, 1, 1, 1),
                      }
 
 
-def find_game_score(game: Game, use_positional_scoring: bool = True) -> int:
+def find_game_score(game: Game, use_positional_scoring: bool) -> int:
     """Finds the score of a chess game based on the material."""
 
     if game.turn.is_white() and game.check_mate:
