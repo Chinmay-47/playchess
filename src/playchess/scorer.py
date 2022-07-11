@@ -30,8 +30,8 @@ POSITIONAL_SCORES = {Piece.WHITE_KNIGHT: ((1, 1, 1, 1, 1, 1, 1, 1),
                      }
 
 
-def find_material_score(game: Game) -> int:
-    """Finds the score of a based on the material."""
+def find_game_score(game: Game, use_positional_scoring: bool = True) -> int:
+    """Finds the score of a chess game based on the material."""
 
     if game.turn.is_white() and game.check_mate:
         return -CHECKMATE_ABS_SCORE
@@ -47,7 +47,7 @@ def find_material_score(game: Game) -> int:
                 continue
             positional_score_matrix = POSITIONAL_SCORES.get(piece_, None)
             positional_score = 0
-            if positional_score_matrix:
+            if positional_score_matrix and use_positional_scoring:
                 positional_score = positional_score_matrix[row_num][col_num]
 
             score = score + PIECE_SCORES[piece_] + (positional_score * 0.1)
