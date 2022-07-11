@@ -11,6 +11,24 @@ PIECE_SCORES = {Piece.WHITE_KING: 0, Piece.BLACK_KING: 0,
 CHECKMATE_ABS_SCORE = 10_000
 STALEMATE_SCORE = 0
 
+POSITIONAL_SCORES = {Piece.WHITE_KNIGHT: ((1, 1, 1, 1, 1, 1, 1, 1),
+                                          (1, 2, 2, 2, 2, 2, 2, 1),
+                                          (1, 2, 3, 3, 3, 3, 2, 1),
+                                          (1, 2, 3, 4, 4, 3, 2, 1),
+                                          (1, 2, 3, 4, 4, 3, 2, 1),
+                                          (1, 2, 3, 3, 3, 3, 2, 1),
+                                          (1, 2, 2, 2, 2, 2, 2, 1),
+                                          (1, 1, 1, 1, 1, 1, 1, 1)),
+                     Piece.BLACK_KNIGHT: ((-1, -1, -1, -1, -1, -1, -1, -1),
+                                          (-1, -2, -2, -2, -2, -2, -2, -1),
+                                          (-1, -2, -3, -3, -3, -3, -2, -1),
+                                          (-1, -2, -3, -4, -4, -3, -2, -1),
+                                          (-1, -2, -3, -4, -4, -3, -2, -1),
+                                          (-1, -2, -3, -3, -3, -3, -2, -1),
+                                          (-1, -2, -2, -2, -2, -2, -2, -1),
+                                          (-1, -1, -1, -1, -1, -1, -1, -1)),
+                     }
+
 
 def find_material_score(game: Game) -> int:
     """Finds the score of a based on the material."""
@@ -23,10 +41,15 @@ def find_material_score(game: Game) -> int:
         return STALEMATE_SCORE
 
     score = 0
-    for row in game.chess_board:
-        for piece_ in row:
+    for row_num, row in enumerate(game.chess_board):
+        for col_num, piece_ in enumerate(row):
             if piece_.is_none():
                 continue
-            score += PIECE_SCORES[piece_]
+            positional_score_matrix = POSITIONAL_SCORES.get(piece_, None)
+            positional_score = 0
+            if positional_score_matrix:
+                positional_score = positional_score_matrix[row_num][col_num]
+
+            score = score + PIECE_SCORES[piece_] + (positional_score * 0.1)
 
     return score
