@@ -2,8 +2,6 @@
 Configuration settings for playchess.
 """
 
-import pygame
-
 
 BOARD_WIDTH = BOARD_HEIGHT = 512     # Width and Height of the chess board
 
