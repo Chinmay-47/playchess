@@ -38,6 +38,8 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned"
     human_plays_white: bool = True if player1 == "human" else False
     human_plays_black: bool = True if player2 == "human" else False
 
+    game.draw(screen, selected_square, valid_moves)
+
     while True:
         human_turn = (game.turn.is_white() and human_plays_white) or \
                      (not game.turn.is_white() and human_plays_black)
@@ -112,6 +114,9 @@ def play(player1: str = "human", player2: str = "bot", ai: str = "minmax_pruned"
             else:
                 ai_move = ai_move_finder(game, valid_moves, depth).find_move()
 
+            if ai_move is None:
+                ai_move = AI_MOVE_FINDERS["random"](valid_moves).find_move()
+
             game.make_move(ai_move)
             board_state_changed = True
 
@@ -128,4 +133,4 @@ def _display_game_over_text(screen: pygame.surface.Surface, game_: Game):
 
 
 if __name__ == '__main__':
-    play(ai="minmax_pruned", depth=3)
+    play(player1="bot", depth=2)
