@@ -136,7 +136,7 @@ class PrunedMinMaxMoveFinder(MoveFinder):
         best_move: Optional[Move] = None
 
         def set_best_move_min_max_recursive(game_: Game, valid_moves_: List[Move], depth_: int, white_to_play: bool,
-                                            alpha: int = -CHECKMATE_ABS_SCORE, beta: int = CHECKMATE_ABS_SCORE):
+                                            alpha: float = -CHECKMATE_ABS_SCORE, beta: float = CHECKMATE_ABS_SCORE):
 
             nonlocal best_move
 
